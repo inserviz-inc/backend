@@ -5,6 +5,7 @@ const {
 } = require("../../helpers/validations/authValidation");
 const { generateToken } = require("../../helpers/validations/jwtToken");
 const UsersModel = require("../../models/UsersModel/UsersModel");
+const sendMail = require("../../helpers/sendmail/sendmail");
 
 // REGISTER USER SERVICE
 async function signUpUser(req, res) {
@@ -32,6 +33,8 @@ async function signUpUser(req, res) {
   try {
     const saveUser = newUser.save();
     if (saveUser) {
+      const mail_body = `<h1>Hello ${newUser?.first_name}</h1> <p>Welcome to inserviz</p>`;
+      await sendMail(email, mail_body);
       return { message: "success", token: accessToken, user: newUser };
     }
   } catch (error) {
@@ -45,12 +48,12 @@ async function signInUser(req, res) {
 
   // CHECK IF EMAIL EXIST
   const emailExist = await UsersModel.findOne({ email: email });
-  if (!emailExist) return res.sendStatus(401);
+  if (!emailExist) return { status: "error", data: "incorrect email" };
   const validPassword = await bcrypt.compareSync(
     password,
     emailExist?.password
   );
-  if (!validPassword) return res.sendStatus(401);
+  if (!validPassword) return { status: "error", data: "incorrect password" };
 
   const accessToken = await generateToken({ ...emailExist });
   res
@@ -58,4 +61,16 @@ async function signInUser(req, res) {
     .json({ status: "success", token: accessToken, user: emailExist });
 }
 
-module.exports = { signUpUser, signInUser };
+// FORGOT PASSWORD SERVICE
+async function forgotPassword(req) {
+  const { email } = req.body;
+
+  // Check if email exist
+  const emailExist = await UsersModel.findOne({ email: email });
+  if (!emailExist)
+    return { status: "errors", message: "there is no user with this email" };
+
+  const token = await generateToken({ ...emailExist });
+  return { status: "success", resettoken: token };
+}
+module.exports = { signUpUser, signInUser, forgotPassword };
