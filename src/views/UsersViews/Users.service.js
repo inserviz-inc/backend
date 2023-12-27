@@ -6,10 +6,13 @@ const {
 const { generateToken } = require("../../helpers/validations/jwtToken");
 const UsersModel = require("../../models/UsersModel/UsersModel");
 const sendMail = require("../../helpers/sendmail/sendmail");
+const welcomEmail = require("../../../public/welcome");
+const passwordReset = require("../../../public/passwordreset");
+const { uploadFile } = require("../../helpers/uploads/imageUpload");
 
 // REGISTER USER SERVICE
 async function signUpUser(req, res) {
-  const { email, first_name, password } = req?.body;
+  const { email, username, password } = req?.body;
 
   // Validate request
   const { error } = registerValidation(req?.body);
@@ -20,20 +23,20 @@ async function signUpUser(req, res) {
   if (emailExists) return { status: 400, message: "Email already exists" };
 
   //check if first_name exists
-  const first_nameExists = await UsersModel.findOne({ first_name });
-  if (first_nameExists)
-    return { status: 400, message: "first_name already exists" };
+  const usernameExists = await UsersModel.findOne({ username });
+  if (usernameExists)
+    return { status: 400, message: "username already exists" };
 
   const newUser = new UsersModel({
     email,
-    first_name,
+    username,
     password: await encryptPassword(password),
   });
   const accessToken = generateToken({ ...newUser });
   try {
     const saveUser = newUser.save();
     if (saveUser) {
-      const mail_body = `<h1>Hello ${newUser?.first_name}</h1> <p>Welcome to inserviz</p>`;
+      const mail_body = welcomEmail(username);
       await sendMail(email, mail_body);
       return { message: "success", token: accessToken, user: newUser };
     }
@@ -71,6 +74,82 @@ async function forgotPassword(req) {
     return { status: "errors", message: "there is no user with this email" };
 
   const token = await generateToken({ ...emailExist });
-  return { status: "success", resettoken: token };
+  const mail_body = passwordReset();
+  await sendMail(email, mail_body);
+  return { status: "success" };
 }
-module.exports = { signUpUser, signInUser, forgotPassword };
+
+// RESET PASSWORD SERVICE
+async function resetPassword(req) {
+  const { password, email } = req.body;
+  const user = await UsersModel.updateOne(
+    { email: email },
+    { $set: { password: await encryptPassword(password) } }
+  );
+  return { status: "success", data: user };
+}
+
+// UPDATE USERNAME SERVICE
+async function updateUsername(req) {
+  const { username } = req.body;
+  const { idx } = req.params;
+  // check if email exist
+  const emailExist = await UsersModel.findOne({ username: username });
+  if (emailExist)
+    return {
+      status: "errors",
+      message: "Validation failed: email: Email already exists",
+    };
+  try {
+    const response = await UsersModel.updateOne(
+      { _id: idx },
+      { $set: { username: username } }
+    );
+    if (response) {
+      return { status: "success", data: { username } };
+    }
+  } catch (error) {
+    return { status: "errors", message: error };
+  }
+}
+
+// UPDATE USERINFORMATION SERVICE
+async function updateUserProfile(req) {
+  const { idx } = req.params;
+
+  const image_url = await uploadFile(req.file, `image/${idx}`);
+  try {
+    const response = await UsersModel.updateOne(
+      { _id: idx },
+      { $set: { ...req.body, image: image_url } }
+    );
+    if (response) {
+      return { status: "success", data: response };
+    }
+  } catch (error) {
+    return { status: "error", error: error };
+  }
+}
+
+// GET A SINGLE USER SERVICE
+async function getSingleUser(req) {
+  const { idx } = req.params;
+  try {
+    const response = await UsersModel.findOne({ _id: idx });
+    if (response) {
+      return { status: "success", data: response };
+    }
+    return { stats: "error", data: "no user found with this id" };
+  } catch (error) {
+    return { status: "error", data: error };
+  }
+}
+module.exports = {
+  signUpUser,
+  signInUser,
+  forgotPassword,
+  resetPassword,
+  updateUsername,
+  updateUserProfile,
+  getSingleUser,
+};

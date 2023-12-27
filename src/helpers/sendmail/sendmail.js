@@ -17,7 +17,7 @@ const sendMail = (email, mailBody) =>
     });
 
     const mailOptions = {
-      from: "inservizinc@gmail.com <Inserviz Inc>",
+      from: "'Inserviz Inc' inservizinc@gmail.com",
       to: email,
       subject: "Welcome to Inserviz",
       html: mailBody,

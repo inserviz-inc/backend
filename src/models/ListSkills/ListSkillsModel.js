@@ -1,0 +1,43 @@
+const mongoose = require("mongoose");
+
+const listSkillsModel = new mongoose.Schema(
+  {
+    id: {
+      type: mongoose.Schema.ObjectId,
+      required: true,
+    },
+    gig_title: {
+      type: String,
+      required: true,
+    },
+    gig_description: {
+      type: String,
+      required: true,
+    },
+    gig_category: {
+      type: String,
+      required: true,
+    },
+    gig_salary: {
+      type: Number,
+      required: true,
+    },
+    price_structure: {
+      type: String,
+      required: true,
+    },
+    delivery_time: {
+      type: String,
+      required: true,
+    },
+    mode_of_service: [],
+    verified_skills_only: {
+      type: Boolean,
+      required: false,
+    },
+    files: [],
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model("listSkills", listSkillsModel);
