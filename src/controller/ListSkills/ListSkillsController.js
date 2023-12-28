@@ -3,6 +3,7 @@ const {
   listSkillsImages,
   getListSkills,
   getUserAllInfo,
+  getSingleGigInfo,
 } = require("../../views/ListSkillsViews/ListSkills.service");
 const multer = require("multer");
 const storage = multer.memoryStorage();
@@ -24,6 +25,11 @@ router.get("/get-list-skills", async (req, res) => {
 
 router.get("/get-all-user-info", async (req, res) => {
   return res.json(await getUserAllInfo(req));
+});
+
+// SINGLE GIG INFO
+router.get("/gigs/:idx", async (req, res) => {
+  return res.json(await getSingleGigInfo(req));
 });
 
 module.exports = router;

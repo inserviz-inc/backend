@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const { uploadFile } = require("../../helpers/uploads/imageUpload");
 const ListSkillsModel = require("../../models/ListSkills/ListSkillsModel");
 const UsersModel = require("../../models/UsersModel/UsersModel");
@@ -111,9 +112,33 @@ async function getUserAllInfo(req) {
   }
 }
 
+// GET SINGLE GIG INFO
+async function getSingleGigInfo(req) {
+  const { idx } = req?.params;
+
+  try {
+    // const response = await ListSkillsModel.find();
+    const results = await ListSkillsModel.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(idx) } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "id",
+          foreignField: "_id",
+          as: "userinfo",
+        },
+      },
+    ]);
+    return { data: results };
+  } catch (error) {
+    return { error: error };
+  }
+}
+
 module.exports = {
   listSkills,
   listSkillsImages,
   getListSkills,
   getUserAllInfo,
+  getSingleGigInfo,
 };

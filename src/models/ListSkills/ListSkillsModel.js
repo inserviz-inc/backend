@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const listSkillsModel = new mongoose.Schema(
   {
     id: {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.SchemaTypes.ObjectId,
       required: true,
     },
     gig_title: {
@@ -34,6 +34,11 @@ const listSkillsModel = new mongoose.Schema(
     verified_skills_only: {
       type: Boolean,
       required: false,
+    },
+    rating: {
+      type: Number,
+      required: false,
+      default: 0,
     },
     files: [],
   },

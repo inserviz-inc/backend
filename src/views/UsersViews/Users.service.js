@@ -9,6 +9,8 @@ const sendMail = require("../../helpers/sendmail/sendmail");
 const welcomEmail = require("../../../public/welcome");
 const passwordReset = require("../../../public/passwordreset");
 const { uploadFile } = require("../../helpers/uploads/imageUpload");
+const ListSkillsModel = require("../../models/ListSkills/ListSkillsModel");
+const { default: mongoose } = require("mongoose");
 
 // REGISTER USER SERVICE
 async function signUpUser(req, res) {
@@ -135,15 +137,35 @@ async function updateUserProfile(req) {
 async function getSingleUser(req) {
   const { idx } = req.params;
   try {
-    const response = await UsersModel.findOne({ _id: idx });
-    if (response) {
-      return { status: "success", data: response };
+    const response = await UsersModel.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(idx), // Convert the string to ObjectId if needed
+        },
+      },
+      {
+        $lookup: {
+          from: "listskills",
+          localField: "_id",
+          foreignField: "id",
+          as: "skillslisted",
+        },
+      },
+    ]);
+
+    if (response.length > 0) {
+      return { status: "success", data: response[0] };
     }
-    return { stats: "error", data: "no user found with this id" };
+
+    return { status: "error", data: "no user found with this id" };
   } catch (error) {
-    return { status: "error", data: error };
+    return {
+      status: "error",
+      data: error.message || "An error occurred while fetching the user",
+    };
   }
 }
+
 module.exports = {
   signUpUser,
   signInUser,

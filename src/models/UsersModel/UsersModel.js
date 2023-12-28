@@ -72,7 +72,7 @@ const userModel = new mongoose.Schema(
       required: false,
       default: 0,
     },
-    gigs: {
+    rating: {
       type: Number,
       required: false,
       default: 0,
