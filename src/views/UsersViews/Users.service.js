@@ -119,11 +119,18 @@ async function updateUsername(req) {
 async function updateUserProfile(req) {
   const { idx } = req.params;
 
-  const image_url = await uploadFile(req.file, `image/${idx}`);
+  const updateInfo = { ...req.body };
+
+  let image_url = "";
+  if (req?.file) {
+    image_url = await uploadFile(req.file, `image/${idx}`);
+    updateInfo.image = image_url;
+  }
+
   try {
     const response = await UsersModel.updateOne(
       { _id: idx },
-      { $set: { ...req.body, image: image_url } }
+      { ...updateInfo }
     );
     if (response) {
       return { status: "success", data: response };

@@ -11,15 +11,12 @@ async function listSkillsImages(req) {
 
   try {
     const results = await Promise.all(
-      req.files.map(async (file) => await uploadFile(file, `files/${id}`))
+      req.files.map(
+        async (file, index) => await uploadFile(file, `files/${id}`)
+      )
     );
 
-    console.log(results);
-
-    // Flatten the nested arrays into a single array
-    const flattenedResults = results.flat();
-
-    return flattenedResults;
+    return { ...results };
   } catch (err) {
     console.error(err);
     throw err; // or handle the error in an appropriate way
@@ -27,31 +24,15 @@ async function listSkillsImages(req) {
 }
 
 async function listSkills(req) {
-  console.log(req.body);
-  console.log(req.files);
-  const {
-    gig_title,
-    gig_description,
-    gig_category,
-    gig_salary,
-    price_structure,
-    delivery_time,
-    mode_of_service,
-    verified_skills_only,
-    files,
-    id,
-  } = req.body;
+  const { id } = req.body;
 
   // const { files } = req.files;
-
-  if (!req.files) {
-    return { error: "Please attach files" };
-  }
+  // console.log(files)
 
   const userfiles = await Promise.all(
     req.files.map(async (file) => await uploadFile(file, `files/${id}`))
   );
-  console.log(userfiles);
+
   try {
     const response = await ListSkillsModel.create({
       ...req.body,
