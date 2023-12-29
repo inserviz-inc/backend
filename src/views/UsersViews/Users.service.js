@@ -120,9 +120,12 @@ async function updateUserProfile(req) {
   const { idx } = req.params;
 
   const updateInfo = { ...req.body };
+  // console.log(req.body);
 
   let image_url = "";
   if (req?.file) {
+    // console.log(req.file);
+
     image_url = await uploadFile(req.file, `image/${idx}`);
     updateInfo.image = image_url;
   }
