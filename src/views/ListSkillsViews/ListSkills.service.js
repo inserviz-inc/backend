@@ -39,11 +39,11 @@ async function listSkills(req) {
       files: userfiles,
     });
     if (response) {
-      return { message: "success", data: "Gig was created succefully" };
+      return { status: "success", data: "Gig was created succefully" };
     }
-    return { status: "error", data: "An error occured" };
+    return { error: "error", data: "An error occured" };
   } catch (error) {
-    return { status: "error", data: error };
+    return { error: "error", data: error };
   }
 }
 
