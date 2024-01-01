@@ -6,6 +6,8 @@ const {
   updateUsername,
   updateUserProfile,
   getSingleUser,
+  getSignInCode,
+  signUpWithGoogle,
 } = require("../../views/UsersViews/Users.service");
 const multer = require("multer");
 const router = require("express").Router();
@@ -21,6 +23,16 @@ router.post("/signup", async (req, res) => {
 // LOGIN USER ENDPOINT
 router.post("/signin", async (req, res) => {
   return res.json(await signInUser(req, res));
+});
+
+// LOGIN WITH GOOGLE ENDPOINT
+router.get("/socials-google", async (req, res) => {
+  return res.json(await signUpWithGoogle(req, res));
+});
+
+// LOGIN REDIRECT CALLACK ENDPOINT
+router.get("/api/oauth/google", async (req, res) => {
+  return getSignInCode(req, res);
 });
 
 //  FORGOTTEN PASSWORD LINK ENDPOINT

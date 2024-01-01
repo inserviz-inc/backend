@@ -26,7 +26,7 @@ const userModel = new mongoose.Schema(
       start: Date,
       end: Date,
     },
-    
+
     designation: {
       type: String,
       required: false,
@@ -80,7 +80,11 @@ const userModel = new mongoose.Schema(
     profile_percentage: {
       type: Number,
       required: false,
-      default: 30,
+      default: 0,
+    },
+    isVerified: {
+      type: Boolean,
+      required: false,
     },
     skills: [],
     socials: [],

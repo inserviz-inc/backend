@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 // Initialize express App
@@ -8,9 +9,16 @@ const corsOptions = [
   {
     origin: "http://localhost:3000",
     optionsSuccessStatus: 200,
+    credential: true,
+  },
+  {
+    origin: "http://localhost:8000/auth/socials-google",
+    optionsSuccessStatus: 200,
+    credential: true,
   },
 ];
 app.use(cors(corsOptions));
+app.use(cookieParser());
 // JSON
 app.use(express.json());
 
