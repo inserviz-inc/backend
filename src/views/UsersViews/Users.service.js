@@ -18,7 +18,7 @@ require("dotenv").config();
 
 // REGISTER USER SERVICE
 async function signUpUser(req, res) {
-  const { email, username, password } = req?.body;
+  const { email, username, password, isVerified, image, first_name, last_name } = req?.body;
 
   // Validate request
   const { error } = registerValidation(req?.body);
@@ -37,6 +37,10 @@ async function signUpUser(req, res) {
     email,
     username,
     password: await encryptPassword(password),
+    isVerified: isVerified || false,
+    image: image || "",
+    first_name: first_name || "",
+    last_name: last_name || ""
   });
   const accessToken = generateToken({ ...newUser });
   try {
@@ -232,19 +236,27 @@ async function updateUserProfile(req) {
 
   try {
     // Update user profile in the database
-    const response = await UsersModel.updateOne({ _id: idx }, { ...updateInfo });
+    const response = await UsersModel.updateOne(
+      { _id: idx },
+      { ...updateInfo }
+    );
 
     if (response.ok) {
       // Calculate the profile_percentage based on the number of non-empty fields
       const user = await UsersModel.findById(idx);
-      const filledFields = Object.values(user.toJSON()).filter((value) => !!value);
+      const filledFields = Object.values(user.toJSON()).filter(
+        (value) => !!value
+      );
       const totalFields = Object.keys(user.schema.paths).length - 1; // Exclude __v field
-      const profilePercentage = Math.round((filledFields.length / totalFields) * 100);
+      const profilePercentage = Math.round(
+        (filledFields.length / totalFields) * 100
+      );
 
       // Update profile_percentage in the database
-      await UsersModel.updateOne({ _id: idx }, { profile_percentage: profilePercentage });
-
-      
+      await UsersModel.updateOne(
+        { _id: idx },
+        { profile_percentage: profilePercentage }
+      );
 
       return { status: "success", data: response };
     }
