@@ -27,7 +27,7 @@ router.post("/signin", async (req, res) => {
 
 // LOGIN WITH GOOGLE ENDPOINT
 router.get("/socials-google", async (req, res) => {
-  return res.json(await signUpWithGoogle(req, res));
+  return signUpWithGoogle(req, res);
 });
 
 // LOGIN REDIRECT CALLACK ENDPOINT
