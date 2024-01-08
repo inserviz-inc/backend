@@ -14,11 +14,21 @@ const { default: mongoose } = require("mongoose");
 const qs = require("querystring");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
+const verifyEmail = require("../../../public/verifyEmail");
+const NotificationModel = require("../../models/Notifications/NotificationModel");
 require("dotenv").config();
 
 // REGISTER USER SERVICE
 async function signUpUser(req, res) {
-  const { email, username, password, isVerified, image, first_name, last_name } = req?.body;
+  const {
+    email,
+    username,
+    password,
+    isVerified,
+    image,
+    first_name,
+    last_name,
+  } = req?.body;
 
   // Validate request
   const { error } = registerValidation(req?.body);
@@ -40,7 +50,7 @@ async function signUpUser(req, res) {
     isVerified: isVerified || false,
     image: image || "",
     first_name: first_name || "",
-    last_name: last_name || ""
+    last_name: last_name || "",
   });
   const accessToken = generateToken({ ...newUser });
   try {
@@ -298,6 +308,45 @@ async function getSingleUser(req) {
   }
 }
 
+// VERIFICATION LINK
+
+async function sendVerificationLink(req) {
+  const { idx } = req.params;
+
+  try {
+    const user = await UsersModel.findOne({ _id: idx });
+
+    if (user) {
+      const subject = "Email Confirmation";
+      const mail_body = verifyEmail(idx);
+      await sendMail(user?.email, subject, mail_body)
+        .then((res) => {
+          return { status: "success" };
+        })
+        .catch((error) => {
+          return { error: "An error occured when sending email" };
+        });
+      return { status: "success" };
+    }
+  } catch (error) {
+    return { error: error?.message };
+  }
+}
+
+async function verifyLink(req, res) {
+  const { idx } = req.params;
+
+  try {
+    const user = await UsersModel.updateOne({ _id: idx }, { isVerified: true });
+    if (user) {
+      return res.sendFile(__dirname + "/views/success.html");
+    }
+    return res.send("Invalid link");
+  } catch (error) {
+    return { status: "error" };
+  }
+}
+
 module.exports = {
   signUpUser,
   signInUser,
@@ -308,4 +357,6 @@ module.exports = {
   getSingleUser,
   signUpWithGoogle,
   getSignInCode,
+  sendVerificationLink,
+  verifyLink,
 };

@@ -39,6 +39,10 @@ const userModel = new mongoose.Schema(
       type: String,
       required: false,
     },
+    bgImage: {
+      type: String,
+      required: false,
+    },
     phone_number: {
       type: String,
       required: false,
@@ -60,6 +64,10 @@ const userModel = new mongoose.Schema(
       required: false,
     },
     gps_address: {
+      type: String,
+      required: false,
+    },
+    skills: {
       type: String,
       required: false,
     },
@@ -86,7 +94,7 @@ const userModel = new mongoose.Schema(
       type: Boolean,
       required: false,
     },
-    skills: [],
+   
     socials: [],
     portfolio: [],
   },

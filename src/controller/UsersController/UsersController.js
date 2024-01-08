@@ -8,6 +8,8 @@ const {
   getSingleUser,
   getSignInCode,
   signUpWithGoogle,
+  sendVerificationLink,
+  verifyLink,
 } = require("../../views/UsersViews/Users.service");
 const multer = require("multer");
 const router = require("express").Router();
@@ -59,5 +61,15 @@ router.put("/:idx", upload, async (req, res) => {
 router.get("/:idx", async (req, res) => {
   return res.json(await getSingleUser(req, res));
 });
+
+// SEND VERIFICATION LINK
+router.get("/verification/:idx", async (req, res) => {
+  return res.json(await sendVerificationLink(req, res));
+});
+
+router.get("/verify/user/link/:idx", async (req, res) => {
+  return await verifyLink(req, res);
+});
+
 
 module.exports = router;
