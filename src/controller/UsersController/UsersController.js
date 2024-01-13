@@ -43,7 +43,7 @@ router.post("/forgot-password", async (req, res) => {
 });
 
 //  RESET PASSWORD LINK ENDPOINT
-router.post("/reset-password", async (req, res) => {
+router.put("/reset-password", async (req, res) => {
   return res.json(await resetPassword(req, res));
 });
 
@@ -70,6 +70,5 @@ router.get("/verification/:idx", async (req, res) => {
 router.get("/verify/user/link/:idx", async (req, res) => {
   return await verifyLink(req, res);
 });
-
 
 module.exports = router;
