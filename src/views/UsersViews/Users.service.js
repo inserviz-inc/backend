@@ -192,7 +192,7 @@ async function forgotPassword(req) {
     return { status: "errors", message: "there is no user with this email" };
 
   const token = await generateToken({ ...emailExist });
-  const mail_body = passwordReset();
+  const mail_body = passwordReset(emailExist?._id);
   const subject = "Password Reset";
   await sendMail(email, subject, mail_body);
   return { status: "success" };
@@ -200,12 +200,17 @@ async function forgotPassword(req) {
 
 // RESET PASSWORD SERVICE
 async function resetPassword(req) {
-  const { password, email } = req.body;
-  const user = await UsersModel.updateOne(
-    { email: email },
-    { $set: { password: await encryptPassword(password) } }
-  );
-  return { status: "success", data: user };
+  const { password, idx } = req.body;
+
+  try {
+    const user = await UsersModel.updateOne(
+      { _id: idx },
+      { $set: { password: await encryptPassword(password) } }
+    );
+    return { status: "success", data: user };
+  } catch (error) {
+    return { status: "error", message: error };
+  }
 }
 
 // UPDATE USERNAME SERVICE
