@@ -17,4 +17,6 @@ router.use("/intracts", require("../../controller/PostGig/PostGigController"))
 // post GIG Route
 router.use("/intracts", require("../../controller/PostGig/PostGigController"))
 
+
+
 module.exports = router

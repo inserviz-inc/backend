@@ -16,6 +16,7 @@ const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const verifyEmail = require("../../../public/verifyEmail");
 const NotificationModel = require("../../models/Notifications/NotificationModel");
+const PostGigModel = require("../../models/PostGig/PostGigModel");
 require("dotenv").config();
 
 // REGISTER USER SERVICE
@@ -352,6 +353,39 @@ async function verifyLink(req, res) {
   }
 }
 
+async function searchResults(req, res) {
+  const { search } = req.body;
+
+  const listresults = await ListSkillsModel.aggregate([
+    {
+      $match: {
+        $or: [
+          { gig_title: { $regex: search, $options: "i" } },
+          { gig_description: { $regex: search, $options: "i" } },
+          { gig_category: { $regex: search, $options: "i" } },
+        ],
+      },
+    },
+  ]);
+  const gigsresults = await PostGigModel.aggregate([
+    {
+      $match: {
+        $or: [
+          { gig_title: { $regex: search, $options: "i" } },
+          { gig_description: { $regex: search, $options: "i" } },
+          { gig_category: { $regex: search, $options: "i" } },
+        ],
+      },
+    },
+  ]);
+
+  try {
+    return { listresults, gigsresults };
+  } catch (error) {
+    return { error };
+  }
+}
+
 module.exports = {
   signUpUser,
   signInUser,
@@ -364,4 +398,5 @@ module.exports = {
   getSignInCode,
   sendVerificationLink,
   verifyLink,
+  searchResults,
 };
