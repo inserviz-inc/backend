@@ -10,6 +10,7 @@ const {
   signUpWithGoogle,
   sendVerificationLink,
   verifyLink,
+  searchResults,
 } = require("../../views/UsersViews/Users.service");
 const multer = require("multer");
 const router = require("express").Router();
@@ -69,6 +70,10 @@ router.get("/verification/:idx", async (req, res) => {
 
 router.get("/verify/user/link/:idx", async (req, res) => {
   return await verifyLink(req, res);
+});
+
+router.post("/search", async (req, res) => {
+  return res.json(await searchResults(req, res));
 });
 
 module.exports = router;
