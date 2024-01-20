@@ -356,30 +356,61 @@ async function verifyLink(req, res) {
 async function searchResults(req, res) {
   const { search } = req.body;
 
-  const listresults = await ListSkillsModel.aggregate([
-    {
-      $match: {
-        $or: [
-          { gig_title: { $regex: search, $options: "i" } },
-          { gig_description: { $regex: search, $options: "i" } },
-          { gig_category: { $regex: search, $options: "i" } },
-        ],
-      },
-    },
-  ]);
-  const gigsresults = await PostGigModel.aggregate([
-    {
-      $match: {
-        $or: [
-          { gig_title: { $regex: search, $options: "i" } },
-          { gig_description: { $regex: search, $options: "i" } },
-          { gig_category: { $regex: search, $options: "i" } },
-        ],
-      },
-    },
-  ]);
-
   try {
+    const listresults = await ListSkillsModel.aggregate([
+      {
+        $match: {
+          $or: [
+            { gig_title: { $regex: search, $options: "i" } },
+            { gig_description: { $regex: search, $options: "i" } },
+            { gig_category: { $regex: search, $options: "i" } },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "id",
+          foreignField: "_id",
+          as: "userinfo",
+        },
+      },
+      {
+        $unwind: "$userinfo",
+      },
+      {
+        $project: {
+          id: 1,
+          _id: 1,
+          gig_title: 1,
+          gig_salary: 1,
+          files: 1,
+          "userinfo.username": 1,
+          "userinfo.first_name": 1,
+          "userinfo.last_name": 1,
+          "userinfo.image": 1,
+        },
+      },
+    ]);
+    const gigsresults = await PostGigModel.aggregate([
+      {
+        $match: {
+          $or: [
+            { gig_title: { $regex: search, $options: "i" } },
+            { gig_description: { $regex: search, $options: "i" } },
+            { gig_category: { $regex: search, $options: "i" } },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "id",
+          foreignField: "_id",
+          as: "userinfo",
+        },
+      },
+    ]);
     return { listresults, gigsresults };
   } catch (error) {
     return { error };
